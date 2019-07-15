@@ -1,6 +1,6 @@
 # icecreambot
 
-will sell ice creams to people
+This bot will sell ice creams to people
 
 This bot has been created using [Bot Framework](https://dev.botframework.com), it shows how to:
 
