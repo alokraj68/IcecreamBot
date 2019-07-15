@@ -30,7 +30,7 @@ class CancelAndHelpDialog extends ComponentDialog {
         switch (text) {
         case 'help':
         case '?':
-            await innerDc.context.sendActivity('I have three different ice cream types in stock for you. Cup (Regular) and Cone (Regular / Large).\n You can say "Get me a Refular Cone ice cream"');
+            await innerDc.context.sendActivity('I have three different ice cream types in stock for you. Cup (Regular) and Cone (Regular / Large).\n You can say "Get me a Regular Cone ice cream"');
             return { status: DialogTurnStatus.waiting };
         case 'cancel':
         case 'quit':

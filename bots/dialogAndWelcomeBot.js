@@ -3,7 +3,7 @@
 
 const { CardFactory } = require('botbuilder-core');
 const { DialogBot } = require('./dialogBot');
-const WelcomeCard = require('../resources/welcomeCard.json');
+const IcecreamCard = require('../resources/IceCreamCard.json');
 
 class DialogAndWelcomeBot extends DialogBot {
     constructor(conversationState, userState, dialog, logger) {
@@ -13,7 +13,7 @@ class DialogAndWelcomeBot extends DialogBot {
             const membersAdded = context.activity.membersAdded;
             for (let cnt = 0; cnt < membersAdded.length; cnt++) {
                 if (membersAdded[cnt].id !== context.activity.recipient.id) {
-                    const welcomeCard = CardFactory.adaptiveCard(WelcomeCard);
+                    const welcomeCard = CardFactory.adaptiveCard(IcecreamCard);
                     await context.sendActivity({ attachments: [welcomeCard] });
                 }
             }

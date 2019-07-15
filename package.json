@@ -1,7 +1,7 @@
 {
     "name": "icecreambot",
     "version": "1.0.0",
-    "description": "will sell ice creams to people",
+    "description": "Will sell ice creams to people",
     "author": "Generated using Microsoft Bot Builder Yeoman generator v4.4.0",
     "license": "MIT",
     "main": "index.js",

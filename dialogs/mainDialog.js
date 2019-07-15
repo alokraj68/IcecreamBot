@@ -3,11 +3,11 @@
 
 const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-expression');
 const { ComponentDialog, DialogSet, DialogTurnStatus, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
-const { BookingDialog } = require('./bookingDialog');
+const { OrderDialog } = require('./orderDialog');
 const { LuisHelper } = require('./luisHelper');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
-const BOOKING_DIALOG = 'bookingDialog';
+const ORDER_DIALOG = 'orderDialog';
 
 class MainDialog extends ComponentDialog {
     constructor(logger) {
@@ -23,7 +23,7 @@ class MainDialog extends ComponentDialog {
         // Define the main dialog and its related components.
         // This is a sample "book a flight" dialog.
         this.addDialog(new TextPrompt('TextPrompt'))
-            .addDialog(new BookingDialog(BOOKING_DIALOG))
+            .addDialog(new OrderDialog(ORDER_DIALOG))
             .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
                 this.introStep.bind(this),
                 this.actStep.bind(this),
@@ -51,8 +51,8 @@ class MainDialog extends ComponentDialog {
 
     /**
      * First step in the waterfall dialog. Prompts the user for a command.
-     * Currently, this expects a booking request, like "book me a flight from Paris to Berlin on march 22"
-     * Note that the sample LUIS model will only recognize Paris, Berlin, New York and London as airport cities.
+     * Currently, this expects a order request, like "get me a large cone ice cream"
+     * Note that the sample LUIS model will only recognize the defined entites in luis app.
      */
     async introStep(stepContext) {
         if (!process.env.LuisAppId || !process.env.LuisAPIKey || !process.env.LuisAPIHostName) {
@@ -60,48 +60,48 @@ class MainDialog extends ComponentDialog {
             return await stepContext.next();
         }
 
-        return await stepContext.prompt('TextPrompt', { prompt: 'What can I help you with today?\nSay something like "Get me a Refular Cone ice cream"' });
+        return await stepContext.prompt('TextPrompt', { prompt: 'What can I help you with today?\nSay something like "Get me a Regular Cone ice cream"' });
     }
 
     /**
-     * Second step in the waterall.  This will use LUIS to attempt to extract the origin, destination and travel dates.
-     * Then, it hands off to the bookingDialog child dialog to collect any remaining details.
+     * Second step in the waterall.  This will use LUIS to attempt to extract the type and size of ice cream.
+     * Then, it hands off to the orderDialog child dialog to collect any remaining details.
      */
     async actStep(stepContext) {
-        let bookingDetails = {};
+        let orderDetails = {};
 
         if (process.env.LuisAppId && process.env.LuisAPIKey && process.env.LuisAPIHostName) {
-            // Call LUIS and gather any potential booking details.
-            // This will attempt to extract the origin, destination and travel date from the user's message
-            // and will then pass those values into the booking dialog
-            bookingDetails = await LuisHelper.executeLuisQuery(this.logger, stepContext.context);
+            // Call LUIS and gather any potential order details.
+            // This will attempt to extract the type and size of ice cream fro user
+            // and will then pass those values into the order dialog
+            orderDetails = await LuisHelper.executeLuisQuery(this.logger, stepContext.context);
 
-            this.logger.log('LUIS extracted these booking details:', bookingDetails);
+            this.logger.log('LUIS extracted these order details:', orderDetails);
         }
 
         // In this sample we only have a single intent we are concerned with. However, typically a scenario
         // will have multiple different intents each corresponding to starting a different child dialog.
 
-        // Run the BookingDialog giving it whatever details we have from the LUIS call, it will fill out the remainder.
-        return await stepContext.beginDialog('bookingDialog', bookingDetails);
+        // Run the order dialog giving it whatever details we have from the LUIS call, it will fill out the remainder.
+        return await stepContext.beginDialog('orderDialog', orderDetails);
     }
 
     /**
      * This is the final step in the main waterfall dialog.
-     * It wraps up the sample "book a flight" interaction with a simple confirmation.
+     * It wraps up the sample "Get an Ice cream" interaction with a simple confirmation.
      */
     async finalStep(stepContext) {
-        // If the child dialog ("bookingDialog") was cancelled or the user failed to confirm, the Result here will be null.
+        // If the child dialog ("orderDialog") was cancelled or the user failed to confirm, the Result here will be null.
         if (stepContext.result) {
             const result = stepContext.result;
-            // Now we have all the booking details.
+            // Now we have all the order details.
 
-            // This is where calls to the booking AOU service or database would go.
+            // This is where calls to the order service or database would go.
 
-            // If the call to the booking service was successful tell the user.
-            const timeProperty = new TimexProperty(result.travelDate);
-            const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
-            const msg = `I have you booked to ${ result.destination } from ${ result.origin } on ${ travelDateMsg }.`;
+            // If the call to the order service was successful tell the user.
+            // const timeProperty = new TimexProperty(result.travelDate);
+            // const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
+            const msg = `I have order a ${ result.iceCreamType } `;
             await stepContext.context.sendActivity(msg);
         } else {
             await stepContext.context.sendActivity('Thank you.');
