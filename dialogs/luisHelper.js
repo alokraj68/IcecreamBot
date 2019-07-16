@@ -29,7 +29,6 @@ class LuisHelper {
 
             if (intent === 'Book_Ice_cream') {
                 // We need to get the result from the LUIS JSON which at every level returns an array
-
                 IceCreamDetails.iceCreamType = LuisHelper.parseCompositeEntity(recognizerResult, 'Icecream', 'IcecreamType');
                 IceCreamDetails.iceCreamSize = LuisHelper.parseCompositeEntity(recognizerResult, 'Icecream', 'IcecreamSize');
             }
@@ -42,12 +41,13 @@ class LuisHelper {
     static parseCompositeEntity(result, compositeName, entityName) {
         const compositeEntity = result.entities[compositeName];
         if (!compositeEntity || !compositeEntity[0]) return undefined;
-
-        const entity = compositeEntity[0][entityName];
-        if (!entity || !entity[0]) return undefined;
-
-        const entityValue = entity[0][0];
-        return entityValue;
+        for (const [key, value] of Object.entries(compositeEntity)) {
+            console.log(`key: ${key}, value: ${JSON.stringify(value)}`)
+            if (value[entityName]) {
+                const entityValue = value[entityName][0][0];
+                return entityValue;
+            }
+        }
     }
 
 }
