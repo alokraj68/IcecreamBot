@@ -1,10 +1,23 @@
 // Copyright (c) Microsoft Corporation. All rights reserved.
 // Licensed under the MIT License.
 
-const { TimexProperty } = require('@microsoft/recognizers-text-data-types-timex-expression');
-const { ComponentDialog, DialogSet, DialogTurnStatus, TextPrompt, WaterfallDialog } = require('botbuilder-dialogs');
-const { OrderDialog } = require('./orderDialog');
-const { LuisHelper } = require('./luisHelper');
+const {
+    ComponentDialog,
+    DialogSet,
+    DialogTurnStatus,
+    TextPrompt,
+    WaterfallDialog
+} = require('botbuilder-dialogs');
+const {
+    OrderDialog
+} = require('./orderDialog');
+const {
+    LuisHelper
+} = require('./luisHelper');
+
+const {
+    Common
+} = require('../helper/common');
 
 const MAIN_WATERFALL_DIALOG = 'mainWaterfallDialog';
 const ORDER_DIALOG = 'orderDialog';
@@ -25,7 +38,6 @@ class MainDialog extends ComponentDialog {
         this.addDialog(new TextPrompt('TextPrompt'))
             .addDialog(new OrderDialog(ORDER_DIALOG))
             .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
-                this.introStep.bind(this),
                 this.actStep.bind(this),
                 this.finalStep.bind(this)
             ]));
@@ -60,7 +72,9 @@ class MainDialog extends ComponentDialog {
             return await stepContext.next();
         }
 
-        return await stepContext.prompt('TextPrompt', { prompt: 'What can I help you with today?\nSay something like "Get me a Regular Cone ice cream"' });
+        return await stepContext.prompt('TextPrompt', {
+            prompt: 'What can I help you with today?\nSay something like "Get me a Regular Cone ice cream"'
+        });
     }
 
     /**
@@ -97,14 +111,16 @@ class MainDialog extends ComponentDialog {
             // Now we have all the order details.
 
             // This is where calls to the order service or database would go.
-
+            //todo: call api here if any!
             // If the call to the order service was successful tell the user.
-            // const timeProperty = new TimexProperty(result.travelDate);
-            // const travelDateMsg = timeProperty.toNaturalLanguage(new Date(Date.now()));
-            const msg = `I have order a ${ result.iceCreamType } `;
+
+            const msg =
+                (result.iceCreamType.toLowerCase().trim() == "cone") ?
+                `I have ordered a ${ Common.toTitleCase(result.iceCreamSize) }  ${ Common.toTitleCase(result.iceCreamType) } ice cream for you.` :
+                `I have ordered a  ${ Common.toTitleCase(result.iceCreamType) } ice cream for you.`;
             await stepContext.context.sendActivity(msg);
         } else {
-            await stepContext.context.sendActivity('Thank you.');
+            await stepContext.context.sendActivity('Ok, I have canceled your order. Thank you.');
         }
         return await stepContext.endDialog();
     }

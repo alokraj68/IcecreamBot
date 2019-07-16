@@ -49,7 +49,6 @@ class LuisHelper {
             }
         }
     }
-
 }
 
 module.exports.LuisHelper = LuisHelper;
