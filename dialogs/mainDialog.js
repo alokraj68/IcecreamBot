@@ -38,6 +38,7 @@ class MainDialog extends ComponentDialog {
         this.addDialog(new TextPrompt('TextPrompt'))
             .addDialog(new OrderDialog(ORDER_DIALOG))
             .addDialog(new WaterfallDialog(MAIN_WATERFALL_DIALOG, [
+                this.introStep.bind(this),
                 this.actStep.bind(this),
                 this.finalStep.bind(this)
             ]));
