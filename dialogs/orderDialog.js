@@ -5,7 +5,8 @@
 const {
     ConfirmPrompt,
     TextPrompt,
-    WaterfallDialog
+    WaterfallDialog,
+    NumberPrompt,
 } = require('botbuilder-dialogs');
 const {
     CancelAndHelpDialog
@@ -17,6 +18,7 @@ const {
 
 const CONFIRM_PROMPT = 'confirmPrompt';
 const TEXT_PROMPT = 'textPrompt';
+const NUMBER_PROMPT = 'NUMBER_PROMPT';
 const WATERFALL_DIALOG = 'waterfallDialog';
 
 class OrderDialog extends CancelAndHelpDialog {
@@ -25,9 +27,12 @@ class OrderDialog extends CancelAndHelpDialog {
 
         this.addDialog(new TextPrompt(TEXT_PROMPT))
             .addDialog(new ConfirmPrompt(CONFIRM_PROMPT))
+            .addDialog(new NumberPrompt(NUMBER_PROMPT, this.quantityPromptValidator))
             .addDialog(new WaterfallDialog(WATERFALL_DIALOG, [
                 this.icecreamTypeStep.bind(this),
                 this.icecreamSizeStep.bind(this),
+                this.askForQuantity.bind(this),
+                this.getQuantity.bind(this),
                 this.confirmStep.bind(this),
                 this.finalStep.bind(this)
             ]));
@@ -67,6 +72,44 @@ class OrderDialog extends CancelAndHelpDialog {
         }
     }
 
+    async askForQuantity(stepContext) {
+        const orderDetails = stepContext.options;
+        // Capture the results of the previous step
+        if (orderDetails.iceCreamType.toLowerCase().trim() == "cone") {
+            orderDetails.iceCreamSize = stepContext.result;
+        }
+        if (!orderDetails.iceCreamQuantity) {
+            // We can send messages to the user at any point in the WaterfallStep.
+            await stepContext.context.sendActivity(`Yummy! I will ask the humans to prepare your ${Common.toTitleCase( orderDetails.iceCreamType) } icecream.`);
+
+            // WaterfallStep always finishes with the end of the Waterfall or with another dialog; here it is a Prompt Dialog.
+            return await stepContext.prompt(CONFIRM_PROMPT, `Do you want more than one ${Common.toTitleCase(orderDetails.iceCreamType)}?`, ['yes', 'no']);
+        } else {
+            return await stepContext.next(orderDetails.iceCreamQuantity);
+        }
+    }
+
+    async getQuantity(stepContext) {
+        const orderDetails = stepContext.options;
+        if (!orderDetails.iceCreamQuantity) {
+            if (stepContext.result) {
+                // User said "yes" so we will be prompting for the quantity.
+                // WaterfallStep always finishes with the end of the Waterfall or with another dialog, here it is a Prompt Dialog.
+                const promptOptions = {
+                    prompt: `Please enter how many ${Common.toTitleCase(orderDetails.iceCreamType)} you need. I can get you a maximum of 20 ice creams`,
+                    retryPrompt: 'I can get you a maximum of 20 ice creams. Please enter again.'
+                };
+
+                return await stepContext.prompt(NUMBER_PROMPT, promptOptions);
+            } else {
+                // User said "no" so we will skip the next step. Give -1 as the age.
+                return await stepContext.next(-1);
+            }
+        } else {
+            return await stepContext.next(orderDetails.iceCreamQuantity);
+        }
+    }
+
     /**
      * Confirm the information the user has provided.
      */
@@ -74,11 +117,21 @@ class OrderDialog extends CancelAndHelpDialog {
         const orderDetails = stepContext.options;
 
         // Capture the results of the previous step
-        if (orderDetails.iceCreamType.toLowerCase().trim() == "cone") {
-            orderDetails.iceCreamSize = stepContext.result;
-        }
+        orderDetails.iceCreamQuantity = stepContext.result;
 
-        const msg = (orderDetails.iceCreamType.toLowerCase().trim() == "cone") ? `Please confirm, \n You want a ${Common.toTitleCase(orderDetails.iceCreamSize) } ${ Common.toTitleCase(orderDetails.iceCreamType) } ice cream. \n It will cost you ${Common.price(orderDetails.iceCreamType.toLowerCase().trim(),orderDetails.iceCreamSize.toLowerCase().trim())}` : `Please confirm, \n You want a ${ Common.toTitleCase(orderDetails.iceCreamType) } ice cream.\n It will cost you ${Common.price(orderDetails.iceCreamType.toLowerCase().trim())}`;
+        //composing message. Not using ternary operator for readability reasons
+        var msg = "";
+        msg += `Please confirm, \n You want ${(orderDetails.iceCreamQuantity>1)?orderDetails.iceCreamQuantity:"a"}`;
+        if (orderDetails.iceCreamType.toLowerCase().trim() == "cone") {
+            var Price = Common.price(orderDetails.iceCreamType.toLowerCase().trim(), orderDetails.iceCreamSize.toLowerCase().trim(), orderDetails.iceCreamQuantity);
+
+            msg += ` ${Common.toTitleCase(orderDetails.iceCreamSize) } ${ Common.toTitleCase(orderDetails.iceCreamType) } ice cream. \n It will cost you ${Price}`;
+
+        } else {
+            var Price = Common.price(orderDetails.iceCreamType.toLowerCase().trim(), "", orderDetails.iceCreamQuantity);
+
+            msg += ` ${ Common.toTitleCase(orderDetails.iceCreamType) } ice cream.\n It will cost you ${Price}`;
+        }
 
         // Offer a YES/NO prompt.
         return await stepContext.prompt(CONFIRM_PROMPT, {
@@ -96,6 +149,11 @@ class OrderDialog extends CancelAndHelpDialog {
         } else {
             return await stepContext.endDialog();
         }
+    }
+
+    async quantityPromptValidator(promptContext) {
+        // This condition is our validation rule. You can also change the value at this point.
+        return promptContext.recognized.succeeded && promptContext.recognized.value > 0 && promptContext.recognized.value <= 20;
     }
 }
 

@@ -115,10 +115,15 @@ class MainDialog extends ComponentDialog {
             //todo: call api here if any!
             // If the call to the order service was successful tell the user.
 
-            const msg =
-                (result.iceCreamType.toLowerCase().trim() == "cone") ?
-                `I have ordered a ${ Common.toTitleCase(result.iceCreamSize) }  ${ Common.toTitleCase(result.iceCreamType) } ice cream for you.` :
-                `I have ordered a  ${ Common.toTitleCase(result.iceCreamType) } ice cream for you.`;
+            var msg = `The humans will deliver you ${(result.iceCreamQuantity>1)?result.iceCreamQuantity:"a"}`;
+
+            if (result.iceCreamType.toLowerCase().trim() == "cone") {
+
+                msg += ` ${ Common.toTitleCase(result.iceCreamSize) }  ${ Common.toTitleCase(result.iceCreamType) } ice cream.`;
+            } else {
+                msg += ` ${ Common.toTitleCase(result.iceCreamType) } ice cream.`;
+            }
+            msg += `\n Enjoy your yummy ice cream.`;
             await stepContext.context.sendActivity(msg);
         } else {
             await stepContext.context.sendActivity('Ok, I have canceled your order. Thank you.');
