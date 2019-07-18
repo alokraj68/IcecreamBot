@@ -6,8 +6,6 @@
 // Import required pckages
 const path = require('path');
 const restify = require('restify');
-var express = require('express');
-var app = express();
 
 // Import required bot services. See https://aka.ms/bot-services to learn more about the different parts of a bot.
 const { BotFrameworkAdapter, MemoryStorage, ConversationState, UserState } = require('botbuilder');
@@ -87,7 +85,3 @@ server.post('/api/messages', (req, res) => {
     });
 });
 
-app.use(express.static(__dirname + '/public'));
-
-app.listen('3000');
-console.log('Express File server in 3000. Access at /public');
