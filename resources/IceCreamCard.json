@@ -1,49 +1,47 @@
 {
-  "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
-  "type": "AdaptiveCard",
-  "version": "1.0",
-  "body": [
-      {
-          "type": "Image",
-          "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtB3AwMUeNoq4gUBGe6Ocj8kyh3bXa9ZbV7u1fVKQoyKFHdkqU",
-          "size": "auto"
-      },
-      {
-          "type": "TextBlock",
-          "spacing": "Medium",
-          "size": "default",
-          "weight": "Bolder",
-          "text": "Welcome to Ice cream bot!",
-          "wrap": true
-      },
-      {
-          "type": "TextBlock",
-          "size": "default",
-          "text": "I can help you to get Ice creams of your like! Let's have some yummy Ice creams. I have three different ice cream types in stock for you. Cup (Regular) and Cone (Regular / Large)",
-          "wrap": true,
-          "separator": true
-      }
-  ],
-  "actions": [
-      {
-          "type": "Action.Submit",
-          "title": "Get an Ice cream",
-          "data": "Get an Ice cream"
-      },
-      {
-          "type": "Action.Submit",
-          "title": "Get a Cup Ice cream",
-          "data":"Can I get a cup ice cream"
-      },
-      {
-          "type": "Action.Submit",
-          "title": "Get a Regular Cone Ice cream",
-           "data":"Can I get a Regular Cone ice cream"
-      },
-      {
-          "type": "Action.Submit",
-          "title": "Get a Large Cone Ice cream",
-           "data":"Can I get a Large Cone ice cream"
-      }
-  ]
+    "$schema": "http://adaptivecards.io/schemas/adaptive-card.json",
+    "type": "AdaptiveCard",
+    "version": "1.0",
+    "body": [{
+            "type": "Image",
+            "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtB3AwMUeNoq4gUBGe6Ocj8kyh3bXa9ZbV7u1fVKQoyKFHdkqU",
+            "size": "stretch"
+        },
+        {
+            "type": "TextBlock",
+            "spacing": "Medium",
+            "size": "default",
+            "weight": "Bolder",
+            "text": "Welcome to Ice cream bot!",
+            "wrap": true
+        },
+        {
+            "type": "TextBlock",
+            "size": "default",
+            "text": "I can help you to get Ice creams of your like! Let's have some yummy Ice creams. I have three different ice cream types in stock for you. Cup (Regular) and Cone (Regular / Large)",
+            "wrap": true,
+            "separator": true
+        }
+    ],
+    "actions": [{
+            "type": "Action.Submit",
+            "title": "Get an Ice cream",
+            "data": "Get an Ice cream"
+        },
+        {
+            "type": "Action.Submit",
+            "title": "Get a Cup Ice cream",
+            "data": "Can I get a cup ice cream"
+        },
+        {
+            "type": "Action.Submit",
+            "title": "Get a Regular Cone Ice cream",
+            "data": "Can I get a Regular Cone ice cream"
+        },
+        {
+            "type": "Action.Submit",
+            "title": "Get a Large Cone Ice cream",
+            "data": "Can I get a Large Cone ice cream"
+        }
+    ]
 }
